@@ -9,6 +9,7 @@
         --bg: #f3f7ff;
         --surface: #ffffff;
         --line: #d8e1f0;
+        --day-border: #2b2b2b;
         --text: #182338;
         --muted: #6a7283;
         --primary: #1e66ff;
@@ -24,58 +25,94 @@
       body {
         margin: 0;
         min-height: 100vh;
-        font-family: "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", sans-serif;
+        font-family:
+          "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic",
+          sans-serif;
         color: var(--text);
-        background: radial-gradient(circle at 10% 0%, #ffffff, var(--bg) 45%, #ebf1ff 100%);
+        background: radial-gradient(
+          circle at 10% 0%,
+          #ffffff,
+          var(--bg) 45%,
+          #ebf1ff 100%
+        );
       }
 
       .app {
-        max-width: 560px;
+        min-height: 100vh;
+        width: min(100%, 100vw);
         margin: 0 auto;
         padding: 1rem;
         display: flex;
         flex-direction: column;
-        min-height: 100vh;
         gap: 0.9rem;
       }
 
-      .topbar {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 0.75rem;
+      .screen {
+        display: none;
+        flex: 1;
       }
 
-      .topbar h1 {
+      .screen.is-active {
+        display: block;
+      }
+
+      .screen-content {
+        display: grid;
+        gap: 0.9rem;
+      }
+
+      .calendar-view {
+        display: grid;
+        gap: 0.8rem;
+      }
+
+      .calendar-topbar {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.6rem;
+      }
+
+      .calendar-topbar h1 {
         margin: 0;
-        font-size: clamp(1.25rem, 5vw, 1.5rem);
+        font-size: clamp(1.2rem, 5vw, 1.55rem);
         font-weight: 700;
       }
 
-      .week-nav {
+      .month-btn {
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        width: 2.2rem;
+        height: 2.2rem;
+        padding: 0;
+        min-width: 0;
+        background: var(--surface);
+        color: var(--text);
+        font-size: 1.2rem;
+        line-height: 1;
+      }
+
+      .meal-view {
+        display: grid;
+        gap: 0.9rem;
+      }
+
+      .meal-topbar {
         display: flex;
         align-items: center;
-        gap: 0.4rem;
+        gap: 0.7rem;
       }
 
-      .pill {
+      .back-btn {
+        width: 2.2rem;
+        height: 2.2rem;
+        border-radius: 12px;
         border: 1px solid var(--line);
-        border-radius: 999px;
-        padding: 0.4rem 0.7rem;
-        min-width: 2rem;
         background: var(--surface);
-        font-size: 1rem;
         color: var(--text);
-      }
-
-      .week-label {
-        border: 1px solid var(--line);
-        border-radius: 999px;
-        padding: 0.38rem 0.78rem;
-        font-size: 0.75rem;
-        color: var(--muted);
-        background: var(--surface);
-        white-space: nowrap;
+        font-size: 1.25rem;
+        padding: 0;
+        min-width: 0;
       }
 
       button {
@@ -92,31 +129,97 @@
         transform: scale(0.98);
       }
 
-      .day-tabs {
+      .calendar-month {
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        min-width: 10.5rem;
+        text-align: center;
+      }
+
+      .calendar-weekdays,
+      .calendar-grid {
         display: grid;
         grid-template-columns: repeat(7, minmax(0, 1fr));
-        gap: 0.45rem;
-        overflow-x: auto;
+        gap: 0.35rem;
+      }
+
+      .calendar-weekdays {
+        margin: 0.2rem 0 0.25rem;
+      }
+
+      .calendar-weekday {
+        text-align: center;
+        color: var(--muted);
+        font-size: 0.77rem;
         padding-bottom: 0.15rem;
       }
 
-      .day-tab {
-        border: 1px solid var(--line);
-        border-radius: 12px;
-        background: #fff;
-        text-align: center;
-        padding: 0.55rem 0.2rem;
-        font-size: 0.77rem;
-        color: var(--muted);
-        cursor: pointer;
-        white-space: nowrap;
+      .calendar-grid {
+        margin-top: 0.3rem;
       }
 
-      .day-tab.is-today,
-      .day-tab.active {
-        color: #fff;
-        background: linear-gradient(180deg, #2d67ff, #184ed0);
-        border-color: #2d67ff;
+      .calendar-empty {
+        height: clamp(2.9rem, 11vw, 3.7rem);
+        border-radius: 14px;
+        background: transparent;
+      }
+
+      .calendar-day {
+        height: clamp(2.9rem, 11vw, 3.7rem);
+        border-radius: 14px;
+        border: 1px solid var(--day-border);
+        background: linear-gradient(145deg, #ffffff, #f9fbff);
+        color: var(--text);
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.95rem;
+        font-weight: 600;
+        text-align: center;
+      }
+
+      .calendar-day:focus-visible,
+      .back-btn:focus-visible,
+      .month-btn:focus-visible {
+        outline: 2px solid var(--primary);
+        outline-offset: 0;
+      }
+
+      .calendar-day.is-selected {
+        display: grid;
+        place-content: center;
+        border: 2px solid var(--primary);
+        background: var(--surface);
+        color: var(--text);
+        font-weight: 700;
+      }
+
+      .calendar-day.is-today {
+        color: var(--primary);
+        background: var(--surface);
+        border-color: var(--day-border);
+        box-shadow: none;
+      }
+
+      .calendar-day.is-today.is-selected {
+        border-color: var(--primary);
+        color: var(--primary);
+      }
+
+      .calendar-day.is-today:not(.is-selected) {
+        font-weight: 800;
+      }
+
+      .meal-title-wrap {
+        display: inline-flex;
+        align-items: baseline;
+        gap: 0.35rem;
+      }
+
+      .meal-date {
+        font-size: 1.05rem;
+        margin: 0;
         font-weight: 700;
       }
 
@@ -186,34 +289,83 @@
         font-weight: 600;
       }
 
+      .meal-view-footer {
+        color: var(--muted);
+        font-size: 0.82rem;
+        text-align: center;
+        padding: 0.4rem 0 0.6rem;
+      }
+
       @media (min-width: 640px) {
         .app {
           padding: 1.5rem;
         }
 
-        .week-label {
-          font-size: 0.85rem;
+        .meal-topbar {
+          justify-content: flex-start;
         }
 
         .meal-board {
           grid-template-columns: 1fr 1fr;
         }
 
+        .calendar-day,
+        .calendar-empty {
+          height: 4rem;
+          border-radius: 16px;
+        }
       }
     </style>
   </head>
   <body>
     <div class="app">
-      <header class="topbar">
-        <h1>학식 식단표</h1>
-        <div class="week-nav">
-          <button id="prevWeek" class="pill" aria-label="이전 주">&lt;</button>
-          <span id="weekLabel" class="week-label">이번 주</span>
-          <button id="nextWeek" class="pill" aria-label="다음 주">&gt;</button>
+      <section
+        id="calendarView"
+        class="screen is-active calendar-view"
+        aria-label="달력 보기"
+      >
+        <div class="calendar-topbar">
+          <button id="prevMonth" class="month-btn" aria-label="이전 달">
+            &lt;
+          </button>
+          <h1 id="calendarMonth" class="calendar-month"></h1>
+          <button id="nextMonth" class="month-btn" aria-label="다음 달">
+            &gt;
+          </button>
         </div>
-      </header>
 
-      <nav id="dayTabs" class="day-tabs" aria-label="요일 탭"></nav>
+        <div class="screen-content">
+          <div class="calendar-weekdays" aria-hidden="true">
+            <span class="calendar-weekday">일</span>
+            <span class="calendar-weekday">월</span>
+            <span class="calendar-weekday">화</span>
+            <span class="calendar-weekday">수</span>
+            <span class="calendar-weekday">목</span>
+            <span class="calendar-weekday">금</span>
+            <span class="calendar-weekday">토</span>
+          </div>
+          <div
+            id="calendarGrid"
+            class="calendar-grid"
+            aria-label="날짜 선택"
+            role="grid"
+          ></div>
+        </div>
+      </section>
+
+      <section id="mealView" class="screen meal-view" aria-label="식단 보기">
+        <header class="meal-topbar">
+          <button
+            id="backButton"
+            class="back-btn"
+            aria-label="달력으로 돌아가기"
+          >
+            &lt;
+          </button>
+          <div class="meal-title-wrap">
+            <h2 id="mealDateTitle" class="meal-date"></h2>
+          </div>
+        </header>
 
         <main class="meal-board">
           <section class="meal-card" aria-labelledby="lunchTitle">
@@ -232,31 +384,119 @@
             <ul id="dinnerList" class="dish-list" aria-live="polite"></ul>
           </section>
         </main>
-      </div>
+
+        <p class="meal-view-footer">날짜를 클릭하면 식단이 표시됩니다.</p>
+      </section>
+    </div>
 
     <script>
-      const weekdays = ["월", "화", "수", "목", "금", "토", "일"];
-      const navStateWeekOffsetKey = "schoolmeal_weekOffset";
       const navStateSelectedDateKey = "schoolmeal_selectedDate";
+      const navStateLastMonthKey = "schoolmeal_lastMonth";
 
       const riceMenu = ["흰쌀밥", "잡곡밥", "현미밥", "콩밥", "보리밥"];
-      const soupMenu = ["된장찌개", "김치찌개", "미역국", "콩나물국", "순두부찌개", "시금치국", "북어국", "감자국", "어묵국"];
-      const side1Menu = ["제육볶음", "닭갈비", "고등어조림", "돼지불백", "두부조림", "오징어볶음", "계란말이", "소불고기", "닭볶음탕"];
-      const side2Menu = ["시금치나물", "콩나물무침", "숙주나물", "취나물", "고사리나물", "도라지무침", "무생채", "애호박볶음"];
-      const side3Menu = ["배추김치", "깍두기", "열무김치", "파김치", "총각김치", "겉절이"];
+      const soupMenu = [
+        "된장찌개",
+        "김치찌개",
+        "미역국",
+        "콩나물국",
+        "순두부찌개",
+        "시금치국",
+        "북어국",
+        "감자국",
+        "어묵국",
+      ];
+      const side1Menu = [
+        "제육볶음",
+        "닭갈비",
+        "고등어조림",
+        "돼지불백",
+        "두부조림",
+        "오징어볶음",
+        "계란말이",
+        "소불고기",
+        "닭볶음탕",
+      ];
+      const side2Menu = [
+        "시금치나물",
+        "콩나물무침",
+        "숙주나물",
+        "취나물",
+        "고사리나물",
+        "도라지무침",
+        "무생채",
+        "애호박볶음",
+      ];
+      const side3Menu = [
+        "배추김치",
+        "깍두기",
+        "열무김치",
+        "파김치",
+        "총각김치",
+        "겉절이",
+      ];
 
-      const dayTabs = document.getElementById("dayTabs");
-      const weekLabel = document.getElementById("weekLabel");
+      const calendarView = document.getElementById("calendarView");
+      const mealView = document.getElementById("mealView");
+      const prevMonthButton = document.getElementById("prevMonth");
+      const nextMonthButton = document.getElementById("nextMonth");
+      const calendarMonth = document.getElementById("calendarMonth");
+      const calendarGrid = document.getElementById("calendarGrid");
+      const backButton = document.getElementById("backButton");
+      const mealDateTitle = document.getElementById("mealDateTitle");
       const lunchList = document.getElementById("lunchList");
       const dinnerList = document.getElementById("dinnerList");
       const lunchTodayBadge = document.getElementById("lunchTodayBadge");
       const dinnerTodayBadge = document.getElementById("dinnerTodayBadge");
 
-      let weekOffset = 0;
       let selectedDate = normalizeDate(new Date());
+      let calendarCursor = normalizeDate(
+        new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1),
+      );
+
+      function toMonthKey(date) {
+        const yyyy = date.getFullYear();
+        const mm = String(date.getMonth() + 1).padStart(2, "0");
+
+        return `${yyyy}-${mm}`;
+      }
+
+      function parseMonthValue(monthText) {
+        if (!monthText) return null;
+
+        const parts = monthText.split("-").map(Number);
+        if (parts.length !== 2) return null;
+
+        const [year, month] = parts;
+        if (
+          Number.isNaN(year) ||
+          Number.isNaN(month) ||
+          month < 1 ||
+          month > 12
+        ) {
+          return null;
+        }
+
+        return normalizeDate(new Date(year, month - 1, 1));
+      }
+
+      function formatDateLabel(date) {
+        return `${date.getFullYear()}년 ${date.getMonth() + 1}월 ${date.getDate()}일`;
+      }
+
+      function formatMonthLabel(date) {
+        return `${date.getFullYear()}년 ${date.getMonth() + 1}월`;
+      }
 
       function normalizeDate(date) {
         return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+      }
+
+      function getMonthStart(date) {
+        return new Date(date.getFullYear(), date.getMonth(), 1);
+      }
+
+      function isSameMonth(a, b) {
+        return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth();
       }
 
       function toDateKey(date) {
@@ -290,16 +530,8 @@
           soup: getItemFromMenu(soupMenu, `${base}|soup`),
           side1: getItemFromMenu(side1Menu, `${base}|side1`),
           side2: getItemFromMenu(side2Menu, `${base}|side2`),
-          side3: getItemFromMenu(side3Menu, `${base}|side3`)
+          side3: getItemFromMenu(side3Menu, `${base}|side3`),
         };
-      }
-
-      function getWeekStartByDate(date) {
-        const base = normalizeDate(date);
-        const dayOffset = getWeekdayIndex(base);
-        const monday = new Date(base);
-        monday.setDate(base.getDate() - dayOffset);
-        return monday;
       }
 
       function parseDateValue(dateText) {
@@ -315,43 +547,13 @@
         return normalizeDate(date);
       }
 
-      function getWeekdayIndex(date) {
-        return (date.getDay() + 6) % 7;
-      }
-
-      function getWeekStartDate(offset = 0) {
-        const baseWeekStart = getWeekStartByDate(new Date());
-        const monday = new Date(baseWeekStart);
-        monday.setDate(baseWeekStart.getDate() + offset * 7);
-        return monday;
-      }
-
-      function getDateByWeekOffset(offset, dayIndex) {
-        const weekStart = getWeekStartDate(offset);
-        const date = new Date(weekStart);
-        date.setDate(weekStart.getDate() + dayIndex);
-        return date;
-      }
-
-      function getWeekOfMonth(weekStart) {
-        const monthWeekStart = getWeekStartByDate(new Date(weekStart.getFullYear(), weekStart.getMonth(), 1));
-        const diffMs = weekStart.getTime() - monthWeekStart.getTime();
-        return Math.floor(diffMs / (7 * 24 * 60 * 60 * 1000)) + 1;
-      }
-
-      function renderWeekLabel() {
-        const weekStart = getWeekStartDate(weekOffset);
-        const weekNumber = getWeekOfMonth(weekStart);
-        weekLabel.textContent = `${weekStart.getFullYear()}년 ${weekStart.getMonth() + 1}월 ${weekNumber}주차`;
-      }
-
       function renderMealItems(target, menuData) {
         const rows = [
           { label: "밥", value: menuData.rice || "-" },
           { label: "국", value: menuData.soup || "-" },
           { label: "반찬1", value: menuData.side1 || "-" },
           { label: "반찬2", value: menuData.side2 || "-" },
-          { label: "반찬3", value: menuData.side3 || "-" }
+          { label: "반찬3", value: menuData.side3 || "-" },
         ];
 
         target.innerHTML = rows
@@ -360,7 +562,7 @@
               <li class="dish-item">
                 <span class="label">${label}</span>
                 <span class="value">${value}</span>
-              </li>`
+              </li>`,
           )
           .join("");
       }
@@ -381,92 +583,157 @@
         return toDateKey(date) === toDateKey(normalizeDate(new Date()));
       }
 
-      function isSameDate(a, b) {
-        return toDateKey(a) === toDateKey(b);
-      }
-
-      function renderTabs() {
-        const weekStart = getWeekStartDate(weekOffset);
-
-        dayTabs.innerHTML = "";
-
-        for (let dayIndex = 0; dayIndex < 7; dayIndex++) {
-          const tabDate = getDateByWeekOffset(weekOffset, dayIndex);
-          const btn = document.createElement("button");
-          btn.type = "button";
-          btn.className = "day-tab";
-          btn.textContent = `${weekdays[dayIndex]} ${tabDate.getMonth() + 1}/${tabDate.getDate()}`;
-
-          if (isToday(tabDate)) {
-            btn.classList.add("is-today");
-          }
-
-          if (isSameDate(tabDate, selectedDate)) {
-            btn.classList.add("active");
-          }
-
-          btn.addEventListener("click", () => {
-            selectedDate = tabDate;
-            persistNavigationState();
-            renderDay(selectedDate);
-          });
-
-          dayTabs.appendChild(btn);
-        }
-      }
-
-      function persistNavigationState() {
-        localStorage.setItem(navStateWeekOffsetKey, String(weekOffset));
+      function persistSelectedDate() {
         localStorage.setItem(navStateSelectedDateKey, toDateKey(selectedDate));
       }
 
-      function loadNavigationState() {
-        const storedOffset = Number(localStorage.getItem(navStateWeekOffsetKey));
-        if (Number.isInteger(storedOffset)) {
-          weekOffset = storedOffset;
-        }
-
-        const parsedDate = parseDateValue(localStorage.getItem(navStateSelectedDateKey));
+      function loadSavedDate() {
+        const parsedDate = parseDateValue(
+          localStorage.getItem(navStateSelectedDateKey),
+        );
         selectedDate = parsedDate || normalizeDate(new Date());
+      }
 
-        const weekStart = getWeekStartDate(weekOffset);
-        const weekEnd = getDateByWeekOffset(weekOffset, 6);
+      function loadSavedMonth() {
+        const parsedMonth = parseMonthValue(
+          localStorage.getItem(navStateLastMonthKey),
+        );
 
-        if (selectedDate < weekStart || selectedDate > weekEnd) {
-          const weekday = getWeekdayIndex(selectedDate);
-          selectedDate = getDateByWeekOffset(weekOffset, weekday);
+        if (parsedMonth && isSameMonth(parsedMonth, selectedDate)) {
+          calendarCursor = parsedMonth;
+          return;
+        }
+
+        calendarCursor = getMonthStart(selectedDate);
+      }
+
+      function persistLastMonth() {
+        localStorage.setItem(navStateLastMonthKey, toMonthKey(calendarCursor));
+      }
+
+      function showCalendarView() {
+        calendarCursor = getMonthStart(selectedDate);
+        mealView.classList.remove("is-active");
+        calendarView.classList.add("is-active");
+
+        renderCalendar();
+      }
+
+      function showMealView() {
+        calendarView.classList.remove("is-active");
+        mealView.classList.add("is-active");
+      }
+
+      function renderCalendar() {
+        const selectedDateKey = toDateKey(selectedDate);
+        const year = calendarCursor.getFullYear();
+        const month = calendarCursor.getMonth();
+        const firstDayOfWeek = new Date(year, month, 1).getDay();
+        const totalDays = new Date(year, month + 1, 0).getDate();
+
+        calendarMonth.textContent = formatMonthLabel(calendarCursor);
+        calendarGrid.innerHTML = "";
+
+        for (let emptyCell = 0; emptyCell < firstDayOfWeek; emptyCell++) {
+          const empty = document.createElement("span");
+          empty.className = "calendar-empty";
+          calendarGrid.appendChild(empty);
+        }
+
+        for (let day = 1; day <= totalDays; day++) {
+          const cellDate = normalizeDate(new Date(year, month, day));
+          const cellDateKey = toDateKey(cellDate);
+          const cell = document.createElement("button");
+          const isSelected = cellDateKey === selectedDateKey;
+
+          cell.type = "button";
+          cell.className = "calendar-day";
+          cell.textContent = String(day);
+          cell.dataset.date = cellDateKey;
+          cell.setAttribute(
+            "aria-label",
+            `${formatDateLabel(cellDate)} 날짜 선택`,
+          );
+          cell.setAttribute("aria-pressed", String(isSelected));
+
+          if (isToday(cellDate)) {
+            cell.classList.add("is-today");
+          }
+
+          cell.classList.toggle("is-selected", isSelected);
+
+          cell.addEventListener("click", () => {
+            selectDate(cellDate);
+          });
+
+          calendarGrid.appendChild(cell);
         }
       }
 
-      function renderDay(date) {
-        renderMealCards(date);
-        renderTabs();
+      function selectDate(date) {
+        selectedDate = normalizeDate(date);
+        persistSelectedDate();
+        calendarCursor = normalizeDate(
+          new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1),
+        );
+        persistLastMonth();
+        renderCalendar();
+        renderMealCards(selectedDate);
+        mealDateTitle.textContent = `${formatDateLabel(selectedDate)} 식단`;
+        showMealView();
       }
 
-      function renderDayByCurrentDate() {
-        renderWeekLabel();
-        renderDay(selectedDate);
+      function goToCalendar() {
+        renderMealCards(selectedDate);
+        showCalendarView();
       }
 
-      document.getElementById("prevWeek").addEventListener("click", () => {
-        const weekday = getWeekdayIndex(selectedDate);
-        weekOffset -= 1;
-        selectedDate = getDateByWeekOffset(weekOffset, weekday);
-        persistNavigationState();
-        renderDayByCurrentDate();
+      function prevMonth() {
+        calendarCursor = new Date(
+          calendarCursor.getFullYear(),
+          calendarCursor.getMonth() - 1,
+          1,
+        );
+        persistLastMonth();
+        renderCalendar();
+      }
+
+      function nextMonth() {
+        calendarCursor = new Date(
+          calendarCursor.getFullYear(),
+          calendarCursor.getMonth() + 1,
+          1,
+        );
+        persistLastMonth();
+        renderCalendar();
+      }
+
+      prevMonthButton.addEventListener("click", () => {
+        prevMonth();
       });
 
-      document.getElementById("nextWeek").addEventListener("click", () => {
-        const weekday = getWeekdayIndex(selectedDate);
-        weekOffset += 1;
-        selectedDate = getDateByWeekOffset(weekOffset, weekday);
-        persistNavigationState();
-        renderDayByCurrentDate();
+      nextMonthButton.addEventListener("click", () => {
+        nextMonth();
       });
 
-      loadNavigationState();
-      persistNavigationState();
-      renderDayByCurrentDate();
+      backButton.addEventListener("click", () => {
+        goToCalendar();
+      });
+
+      document.addEventListener("keydown", (event) => {
+        if (!mealView.classList.contains("is-active")) {
+          return;
+        }
+
+        if (event.key === "Escape") {
+          goToCalendar();
+        }
+      });
+
+      loadSavedDate();
+      loadSavedMonth();
+      showCalendarView();
+      renderMealCards(selectedDate);
     </script>
   </body>
 </html>
