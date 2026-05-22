@@ -1,0 +1,472 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>학식 식단표</title>
+    <style>
+      :root {
+        --bg: #f3f7ff;
+        --surface: #ffffff;
+        --line: #d8e1f0;
+        --text: #182338;
+        --muted: #6a7283;
+        --primary: #1e66ff;
+        --primary-soft: #e6eeff;
+        --active: #153fb7;
+        --radius: 16px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", sans-serif;
+        color: var(--text);
+        background: radial-gradient(circle at 10% 0%, #ffffff, var(--bg) 45%, #ebf1ff 100%);
+      }
+
+      .app {
+        max-width: 560px;
+        margin: 0 auto;
+        padding: 1rem;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+        gap: 0.9rem;
+      }
+
+      .topbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 0.75rem;
+      }
+
+      .topbar h1 {
+        margin: 0;
+        font-size: clamp(1.25rem, 5vw, 1.5rem);
+        font-weight: 700;
+      }
+
+      .week-nav {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+      }
+
+      .pill {
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        padding: 0.4rem 0.7rem;
+        min-width: 2rem;
+        background: var(--surface);
+        font-size: 1rem;
+        color: var(--text);
+      }
+
+      .week-label {
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        padding: 0.38rem 0.78rem;
+        font-size: 0.75rem;
+        color: var(--muted);
+        background: var(--surface);
+        white-space: nowrap;
+      }
+
+      button {
+        appearance: none;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: var(--surface);
+        color: var(--text);
+        font-weight: 600;
+        cursor: pointer;
+      }
+
+      button:active {
+        transform: scale(0.98);
+      }
+
+      .day-tabs {
+        display: grid;
+        grid-template-columns: repeat(7, minmax(0, 1fr));
+        gap: 0.45rem;
+        overflow-x: auto;
+        padding-bottom: 0.15rem;
+      }
+
+      .day-tab {
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: #fff;
+        text-align: center;
+        padding: 0.55rem 0.2rem;
+        font-size: 0.77rem;
+        color: var(--muted);
+        cursor: pointer;
+        white-space: nowrap;
+      }
+
+      .day-tab.is-today,
+      .day-tab.active {
+        color: #fff;
+        background: linear-gradient(180deg, #2d67ff, #184ed0);
+        border-color: #2d67ff;
+        font-weight: 700;
+      }
+
+      .meal-board {
+        display: grid;
+        gap: 0.75rem;
+      }
+
+      .meal-card {
+        border: 1px solid var(--line);
+        background: var(--surface);
+        border-radius: var(--radius);
+        padding: 1rem;
+        box-shadow: 0 8px 24px rgba(24, 35, 56, 0.05);
+      }
+
+      .meal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 0.4rem;
+        margin-bottom: 0.75rem;
+        flex-wrap: wrap;
+      }
+
+      .meal-header h2 {
+        margin: 0;
+        font-size: 1.05rem;
+      }
+
+      .today-badge {
+        border: 1px solid #f7bc2f;
+        background: #fff6df;
+        color: #a36e0b;
+        font-size: 0.74rem;
+        border-radius: 999px;
+        padding: 0.1rem 0.56rem;
+        font-weight: 700;
+        margin-left: auto;
+      }
+
+      .dish-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: grid;
+        gap: 0.5rem;
+      }
+
+      .dish-item {
+        display: flex;
+        justify-content: space-between;
+        gap: 0.8rem;
+        padding: 0.65rem 0.75rem;
+        border-radius: 10px;
+        background: #f8faff;
+        border: 1px solid #edf1fa;
+        font-size: 0.92rem;
+      }
+
+      .dish-item .label {
+        color: var(--muted);
+        min-width: 3rem;
+      }
+
+      .dish-item .value {
+        font-weight: 600;
+      }
+
+      @media (min-width: 640px) {
+        .app {
+          padding: 1.5rem;
+        }
+
+        .week-label {
+          font-size: 0.85rem;
+        }
+
+        .meal-board {
+          grid-template-columns: 1fr 1fr;
+        }
+
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <header class="topbar">
+        <h1>학식 식단표</h1>
+        <div class="week-nav">
+          <button id="prevWeek" class="pill" aria-label="이전 주">&lt;</button>
+          <span id="weekLabel" class="week-label">이번 주</span>
+          <button id="nextWeek" class="pill" aria-label="다음 주">&gt;</button>
+        </div>
+      </header>
+
+      <nav id="dayTabs" class="day-tabs" aria-label="요일 탭"></nav>
+
+        <main class="meal-board">
+          <section class="meal-card" aria-labelledby="lunchTitle">
+            <div class="meal-header">
+              <h2 id="lunchTitle">점심</h2>
+              <span id="lunchTodayBadge" class="today-badge" hidden>오늘</span>
+            </div>
+            <ul id="lunchList" class="dish-list" aria-live="polite"></ul>
+          </section>
+
+          <section class="meal-card" aria-labelledby="dinnerTitle">
+            <div class="meal-header">
+              <h2 id="dinnerTitle">저녁</h2>
+              <span id="dinnerTodayBadge" class="today-badge" hidden>오늘</span>
+            </div>
+            <ul id="dinnerList" class="dish-list" aria-live="polite"></ul>
+          </section>
+        </main>
+      </div>
+
+    <script>
+      const weekdays = ["월", "화", "수", "목", "금", "토", "일"];
+      const navStateWeekOffsetKey = "schoolmeal_weekOffset";
+      const navStateSelectedDateKey = "schoolmeal_selectedDate";
+
+      const riceMenu = ["흰쌀밥", "잡곡밥", "현미밥", "콩밥", "보리밥"];
+      const soupMenu = ["된장찌개", "김치찌개", "미역국", "콩나물국", "순두부찌개", "시금치국", "북어국", "감자국", "어묵국"];
+      const side1Menu = ["제육볶음", "닭갈비", "고등어조림", "돼지불백", "두부조림", "오징어볶음", "계란말이", "소불고기", "닭볶음탕"];
+      const side2Menu = ["시금치나물", "콩나물무침", "숙주나물", "취나물", "고사리나물", "도라지무침", "무생채", "애호박볶음"];
+      const side3Menu = ["배추김치", "깍두기", "열무김치", "파김치", "총각김치", "겉절이"];
+
+      const dayTabs = document.getElementById("dayTabs");
+      const weekLabel = document.getElementById("weekLabel");
+      const lunchList = document.getElementById("lunchList");
+      const dinnerList = document.getElementById("dinnerList");
+      const lunchTodayBadge = document.getElementById("lunchTodayBadge");
+      const dinnerTodayBadge = document.getElementById("dinnerTodayBadge");
+
+      let weekOffset = 0;
+      let selectedDate = normalizeDate(new Date());
+
+      function normalizeDate(date) {
+        return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+      }
+
+      function toDateKey(date) {
+        const yyyy = date.getFullYear();
+        const mm = String(date.getMonth() + 1).padStart(2, "0");
+        const dd = String(date.getDate()).padStart(2, "0");
+        return `${yyyy}-${mm}-${dd}`;
+      }
+
+      function hashDate(dateStr) {
+        let total = 0;
+
+        for (let i = 0; i < dateStr.length; i++) {
+          total += dateStr.charCodeAt(i);
+        }
+
+        return total;
+      }
+
+      function getItemFromMenu(menu, seed) {
+        const index = Math.abs(hashDate(seed) % menu.length);
+        return menu[index];
+      }
+
+      function generateMealMenu(date, mealType) {
+        const dateKey = toDateKey(date);
+        const base = mealType === "dinner" ? `${dateKey}dinner` : dateKey;
+
+        return {
+          rice: getItemFromMenu(riceMenu, `${base}|rice`),
+          soup: getItemFromMenu(soupMenu, `${base}|soup`),
+          side1: getItemFromMenu(side1Menu, `${base}|side1`),
+          side2: getItemFromMenu(side2Menu, `${base}|side2`),
+          side3: getItemFromMenu(side3Menu, `${base}|side3`)
+        };
+      }
+
+      function getWeekStartByDate(date) {
+        const base = normalizeDate(date);
+        const dayOffset = getWeekdayIndex(base);
+        const monday = new Date(base);
+        monday.setDate(base.getDate() - dayOffset);
+        return monday;
+      }
+
+      function parseDateValue(dateText) {
+        if (!dateText) return null;
+
+        const parts = dateText.split("-").map(Number);
+        if (parts.length !== 3) return null;
+
+        const [year, month, day] = parts;
+        const date = new Date(year, month - 1, day);
+        if (Number.isNaN(date.getTime())) return null;
+
+        return normalizeDate(date);
+      }
+
+      function getWeekdayIndex(date) {
+        return (date.getDay() + 6) % 7;
+      }
+
+      function getWeekStartDate(offset = 0) {
+        const baseWeekStart = getWeekStartByDate(new Date());
+        const monday = new Date(baseWeekStart);
+        monday.setDate(baseWeekStart.getDate() + offset * 7);
+        return monday;
+      }
+
+      function getDateByWeekOffset(offset, dayIndex) {
+        const weekStart = getWeekStartDate(offset);
+        const date = new Date(weekStart);
+        date.setDate(weekStart.getDate() + dayIndex);
+        return date;
+      }
+
+      function getWeekOfMonth(weekStart) {
+        const monthWeekStart = getWeekStartByDate(new Date(weekStart.getFullYear(), weekStart.getMonth(), 1));
+        const diffMs = weekStart.getTime() - monthWeekStart.getTime();
+        return Math.floor(diffMs / (7 * 24 * 60 * 60 * 1000)) + 1;
+      }
+
+      function renderWeekLabel() {
+        const weekStart = getWeekStartDate(weekOffset);
+        const weekNumber = getWeekOfMonth(weekStart);
+        weekLabel.textContent = `${weekStart.getFullYear()}년 ${weekStart.getMonth() + 1}월 ${weekNumber}주차`;
+      }
+
+      function renderMealItems(target, menuData) {
+        const rows = [
+          { label: "밥", value: menuData.rice || "-" },
+          { label: "국", value: menuData.soup || "-" },
+          { label: "반찬1", value: menuData.side1 || "-" },
+          { label: "반찬2", value: menuData.side2 || "-" },
+          { label: "반찬3", value: menuData.side3 || "-" }
+        ];
+
+        target.innerHTML = rows
+          .map(
+            ({ label, value }) => `
+              <li class="dish-item">
+                <span class="label">${label}</span>
+                <span class="value">${value}</span>
+              </li>`
+          )
+          .join("");
+      }
+
+      function renderMealCards(date) {
+        const lunchMenu = generateMealMenu(date, "lunch");
+        const dinnerMenu = generateMealMenu(date, "dinner");
+
+        renderMealItems(lunchList, lunchMenu);
+        renderMealItems(dinnerList, dinnerMenu);
+
+        const isCurrentDay = isToday(date);
+        lunchTodayBadge.hidden = !isCurrentDay;
+        dinnerTodayBadge.hidden = !isCurrentDay;
+      }
+
+      function isToday(date) {
+        return toDateKey(date) === toDateKey(normalizeDate(new Date()));
+      }
+
+      function isSameDate(a, b) {
+        return toDateKey(a) === toDateKey(b);
+      }
+
+      function renderTabs() {
+        const weekStart = getWeekStartDate(weekOffset);
+
+        dayTabs.innerHTML = "";
+
+        for (let dayIndex = 0; dayIndex < 7; dayIndex++) {
+          const tabDate = getDateByWeekOffset(weekOffset, dayIndex);
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "day-tab";
+          btn.textContent = `${weekdays[dayIndex]} ${tabDate.getMonth() + 1}/${tabDate.getDate()}`;
+
+          if (isToday(tabDate)) {
+            btn.classList.add("is-today");
+          }
+
+          if (isSameDate(tabDate, selectedDate)) {
+            btn.classList.add("active");
+          }
+
+          btn.addEventListener("click", () => {
+            selectedDate = tabDate;
+            persistNavigationState();
+            renderDay(selectedDate);
+          });
+
+          dayTabs.appendChild(btn);
+        }
+      }
+
+      function persistNavigationState() {
+        localStorage.setItem(navStateWeekOffsetKey, String(weekOffset));
+        localStorage.setItem(navStateSelectedDateKey, toDateKey(selectedDate));
+      }
+
+      function loadNavigationState() {
+        const storedOffset = Number(localStorage.getItem(navStateWeekOffsetKey));
+        if (Number.isInteger(storedOffset)) {
+          weekOffset = storedOffset;
+        }
+
+        const parsedDate = parseDateValue(localStorage.getItem(navStateSelectedDateKey));
+        selectedDate = parsedDate || normalizeDate(new Date());
+
+        const weekStart = getWeekStartDate(weekOffset);
+        const weekEnd = getDateByWeekOffset(weekOffset, 6);
+
+        if (selectedDate < weekStart || selectedDate > weekEnd) {
+          const weekday = getWeekdayIndex(selectedDate);
+          selectedDate = getDateByWeekOffset(weekOffset, weekday);
+        }
+      }
+
+      function renderDay(date) {
+        renderMealCards(date);
+        renderTabs();
+      }
+
+      function renderDayByCurrentDate() {
+        renderWeekLabel();
+        renderDay(selectedDate);
+      }
+
+      document.getElementById("prevWeek").addEventListener("click", () => {
+        const weekday = getWeekdayIndex(selectedDate);
+        weekOffset -= 1;
+        selectedDate = getDateByWeekOffset(weekOffset, weekday);
+        persistNavigationState();
+        renderDayByCurrentDate();
+      });
+
+      document.getElementById("nextWeek").addEventListener("click", () => {
+        const weekday = getWeekdayIndex(selectedDate);
+        weekOffset += 1;
+        selectedDate = getDateByWeekOffset(weekOffset, weekday);
+        persistNavigationState();
+        renderDayByCurrentDate();
+      });
+
+      loadNavigationState();
+      persistNavigationState();
+      renderDayByCurrentDate();
+    </script>
+  </body>
+</html>
